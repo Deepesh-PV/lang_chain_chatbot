@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🏁 GridBox - F1 Chatbot</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #887c58;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .chat-container {
+      width: 100%;
+      max-width: 800px;
+      background-color: #1c1c1c;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      background-color: #c13a0db4;
+      padding: 15px;
+      font-weight: bold;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+
+    .chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+      background-color: #444141;
+    }
+
+    .message {
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+
+    .message.user {
+      background-color: #57718e;
+      align-self: flex-end;
+      color: white;
+    }
+
+    .message.bot {
+      background-color: #444;
+      color: #eee;
+      align-self: flex-start;
+    }
+
+    .chat-input-area {
+      display: flex;
+      padding: 10px;
+      background-color: #332e2e;
+    }
+
+    .chat-input-area input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      outline: none;
+      font-size: 1rem;
+    }
+
+    .chat-input-area button {
+      padding: 10px 15px;
+      background-color: #b04b1c;
+      border: none;
+      color: white;
+      margin-left: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      🏁 GridBox - F1 Chatbot
+    </div>
+    <div class="chat-box" id="chat-box">
+      <div class="message bot">Hi! I'm GridBox, your F1 companion. Ask me anything!</div>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="user-input" placeholder="Ask about drivers, races, teams..." />
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const sendBtn = document.getElementById('send-btn');
+    const userInput = document.getElementById('user-input');
+    const chatBox = document.getElementById('chat-box');
+
+    sendBtn.addEventListener('click', handleUserInput);
+    userInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleUserInput();
+    });
+
+    function handleUserInput() {
+      const userText = userInput.value.trim();
+      if (userText !== '') {
+        appendMessage('user', userText);
+        userInput.value = '';
+
+        const encodedQuestion = encodeURIComponent(userText);
+        const apiUrl = `http://127.0.0.1:8000/chat/${encodedQuestion}`;
+
+        // Optional: Show loading message
+        const loadingMsg = appendMessage('bot', '⏳ Thinking...');
+
+        fetch(apiUrl)
+          .then(response => {
+            if (!response.ok) throw new Error('API error');
+            return response.json();
+          })
+          .then(data => {
+            loadingMsg.remove();
+            appendMessage('bot', data.output || 'No reply received.');
+          })
+          .catch(error => {
+            console.error(error);
+            loadingMsg.remove();
+            appendMessage('bot', '⚠️ Error connecting to API.');
+          });
+      }
+    }
+
+    function appendMessage(sender, text) {
+      const msg = document.createElement('div');
+      msg.className = `message ${sender}`;
+      msg.innerText = text;
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return msg; // return DOM element so we can remove/edit later
+    }
+  </script>
+</body>
+</html>
