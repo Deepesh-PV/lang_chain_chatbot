@@ -1,0 +1,24 @@
+# LangChain and tools
+langchain
+langchain-community
+langchain-groq
+
+# Tavily search integration
+tavily-python
+
+# FastAPI for backend
+fastapi
+uvicorn
+
+# Scheduling logic and data handling
+pandas
+python-dateutil
+
+# Environment variables
+python-dotenv
+
+# Cross-origin support
+fastapi[all]  # includes CORS middleware and dependencies
+
+# Prompt templates and model interaction
+pydantic
